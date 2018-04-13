@@ -37,7 +37,7 @@ sigmoid <- function(x, derive=FALSE) {
 if(supervise) {
     outArr <- matrix(c(1), sfdRows, 1)
 } else {
-    outArr <- matrix(c(0), 1, 1)
+    outArr <- matrix(c(0), sfdRows, 1)
 }
 
 # Synapse 0
