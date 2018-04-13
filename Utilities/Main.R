@@ -11,6 +11,7 @@ supervise = TRUE
 iterations = 10000
 
 # Read data file **TO BE COMPLETED**
+fileData <- read.csv("", header=FALSE)
 
 # Scale file data
 
@@ -23,4 +24,10 @@ sigmoid <- function(x, derive=FALSE) {
     } else {
         return (1/(1+exp(-x)))
     }
+}
+
+if(supervise) {
+    outArr <- array(c(), dim=c(x,y,z))
+} else {
+    outArr <- array(c(0), dim=c(nrow(fileData), 1, 1))
 }
