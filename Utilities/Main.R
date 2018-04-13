@@ -40,16 +40,15 @@ if(supervise) {
     outArr <- matrix(c(0), 1, 1)
 }
 
-# print(s.fileData)
-# print(outArr)
-
+# Synapse 0
 syn0 <- matrix(runif(sfdVals, -1.0, 1.0), sfdCols, 1)
 
+# Debugging print
 # print(sigmoid(s.fileData %*% syn0))
-
-cat(sprintf("SYN0 DIMS: %s x %s \nOUTARR DIMS: %s x %s\n", nrow(syn0), ncol(syn0), nrow(outArr), ncol(outArr)))
+# cat(sprintf("SYN0 DIMS: %s x %s \nOUTARR DIMS: %s x %s\n", nrow(syn0), ncol(syn0), nrow(outArr), ncol(outArr)))
 
 for(i in 0:iterations) {
+
     lay0 = s.fileData
     lay1 = sigmoid((lay0 %*% syn0))
 
@@ -60,4 +59,5 @@ for(i in 0:iterations) {
     syn0 = syn0 + (t(lay0) %*% delta)
 }
 
-cat(sprintf("LAY1: %s", lay1))
+# Print out final values
+cat(sprintf("LAY1: %s\n", lay1))
