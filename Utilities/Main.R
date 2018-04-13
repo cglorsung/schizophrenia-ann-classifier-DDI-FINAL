@@ -10,7 +10,7 @@ supervise = TRUE
 # Number of iterations
 iterations = 10000
 
-# Read data file **TO BE COMPLETED**
+# Read data file
 fileData <- read.csv("../DataFiles/SampleSet.csv", header=FALSE)
 
 # Scale file data to interval [-1, 1]
@@ -48,14 +48,18 @@ syn0 <- matrix(runif(sfdVals, -1.0, 1.0), sfdCols, 1)
 # cat(sprintf("SYN0 DIMS: %s x %s \nOUTARR DIMS: %s x %s\n", nrow(syn0), ncol(syn0), nrow(outArr), ncol(outArr)))
 
 for(i in 0:iterations) {
-
+    # Evaluate layer 0
     lay0 = s.fileData
+    # Evaluate layer 1
     lay1 = sigmoid((lay0 %*% syn0))
 
+    # Calculate errors
     error = outArr - lay1
 
+    # Calculate error deltas
     delta = error * sigmoid(lay1, TRUE)
 
+    # Propagate errors back
     syn0 = syn0 + (t(lay0) %*% delta)
 }
 
