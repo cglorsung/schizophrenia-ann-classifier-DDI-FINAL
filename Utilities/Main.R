@@ -11,11 +11,18 @@ supervise = TRUE
 iterations = 10000
 
 # Read data file **TO BE COMPLETED**
-fileData <- read.csv("", header=FALSE)
+fileData <- read.csv("../DataFiles/SampleSet.csv", header=FALSE)
 
-# Scale file data
+# Scale file data to interval [-1, 1]
+s.fileData <- t(apply(fileData, 1, function(x)2*((x-min(x))/(max(x)-min(x)))-1))
 
 # Put data into matrix datatype
+s.fileData <- matrix(s.fileData, nrow(s.fileData), ncol(s.fileData))
+
+# Dimension values
+sfdCols <- ncol(s.fileData)
+sfdRows <- nrow(s.fileData)
+sfdVals <- sfdCols * sfdRows
 
 # Sigmoid function
 sigmoid <- function(x, derive=FALSE) {
@@ -26,8 +33,31 @@ sigmoid <- function(x, derive=FALSE) {
     }
 }
 
+# Build output reference array
 if(supervise) {
-    outArr <- array(c(), dim=c(x,y,z))
+    outArr <- matrix(c(1), sfdRows, 1)
 } else {
-    outArr <- array(c(0), dim=c(nrow(fileData), 1, 1))
+    outArr <- matrix(c(0), 1, 1)
 }
+
+# print(s.fileData)
+# print(outArr)
+
+syn0 <- matrix(runif(sfdVals, -1.0, 1.0), sfdCols, 1)
+
+# print(sigmoid(s.fileData %*% syn0))
+
+cat(sprintf("SYN0 DIMS: %s x %s \nOUTARR DIMS: %s x %s\n", nrow(syn0), ncol(syn0), nrow(outArr), ncol(outArr)))
+
+for(i in 0:iterations) {
+    lay0 = s.fileData
+    lay1 = sigmoid((lay0 %*% syn0))
+
+    error = outArr - lay1
+
+    delta = error * sigmoid(lay1, TRUE)
+
+    syn0 = syn0 + (t(lay0) %*% delta)
+}
+
+cat(sprintf("LAY1: %s", lay1))
