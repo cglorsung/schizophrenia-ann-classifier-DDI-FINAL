@@ -39,7 +39,7 @@ if(supervise) {
     truArr <- matrix(c(1), sfdRows/2, 1)
     outArr <- rbind(falArr, truArr)
 } else {
-    outArr <- matrix(c(0), 1, 1)
+    outArr <- matrix(c(0), sfdRows, 1)
 }
 # Synapse 0
 syn0 <- matrix(runif(sfdVals, -1.0, 1.0), sfdCols, 1)
