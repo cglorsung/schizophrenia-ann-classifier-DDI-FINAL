@@ -78,5 +78,5 @@ for(i in 0:iterations) {
 
 # Print out final values
 # cat(sprintf("LAY1: %s\n", lay1))
-
+# NEED TO WORK ON LAYERING/ERROR PROPAGATION. CURRENTLY CANNOT TELL ONE GROUP FROM THE OTHER
 print(lay3)
