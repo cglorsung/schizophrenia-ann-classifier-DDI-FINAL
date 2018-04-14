@@ -8,7 +8,7 @@
 supervise = TRUE
 
 # Number of iterations
-iterations = 10000
+iterations = 10
 
 # Read data file
 fileData <- read.csv("../DataFiles/SampleSet.csv", header=FALSE)
@@ -35,33 +35,48 @@ sigmoid <- function(x, derive=FALSE) {
 
 # Build output reference array
 if(supervise) {
-    outArr <- matrix(c(1), sfdRows, 1)
+    falArr <- matrix(c(0), sfdRows/2, 1)
+    truArr <- matrix(c(1), sfdRows/2, 1)
+    outArr <- rbind(falArr, truArr)
 } else {
     outArr <- matrix(c(0), 1, 1)
 }
-
 # Synapse 0
 syn0 <- matrix(runif(sfdVals, -1.0, 1.0), sfdCols, 1)
+syn1 <- matrix(runif(length(outArr), -1.0, 1.0), ncol(outArr), nrow(outArr))
+syn2 <- matrix(runif(length(syn1), -1.0, 1.0), ncol(syn1), nrow(syn1))
 
 # Debugging print
 # print(sigmoid(s.fileData %*% syn0))
-# cat(sprintf("SYN0 DIMS: %s x %s \nOUTARR DIMS: %s x %s\n", nrow(syn0), ncol(syn0), nrow(outArr), ncol(outArr)))
+# cat(sprintf("SYN2 DIMS: %s x %s \nOUTARR DIMS: %s x %s\n", nrow(syn2), ncol(syn2), nrow(outArr), ncol(outArr)))
 
 for(i in 0:iterations) {
     # Evaluate layer 0
     lay0 = s.fileData
     # Evaluate layer 1
     lay1 = sigmoid((lay0 %*% syn0))
+    # Evaluate layer 2
+    lay2 = sigmoid((lay1 %*% syn1))
+    # Evaluate layer 3
+    lay3 = sigmoid((lay2 %*% syn2))
 
-    # Calculate errors
-    error = outArr - lay1
+    # Calculate errors and deltas
+    error3 = outArr - lay3
+    delta3 = error3 * sigmoid(lay3, TRUE)
 
-    # Calculate error deltas
-    delta = error * sigmoid(lay1, TRUE)
+    error2 = (delta3 %*% t(syn2))
+    delta2 = error2 * sigmoid(lay2, TRUE)
+
+    error1 = (delta2 %*% t(syn1))
+    delta1 = error1 * sigmoid(lay1, TRUE)
 
     # Propagate errors back
-    syn0 = syn0 + (t(lay0) %*% delta)
+    syn2 = syn2 + (t(lay2) %*% delta3)
+    syn1 = syn1 + (t(lay1) %*% delta2)
+    syn0 = syn0 + (t(lay0) %*% delta1)
 }
 
 # Print out final values
-cat(sprintf("LAY1: %s\n", lay1))
+# cat(sprintf("LAY1: %s\n", lay1))
+
+print(lay3)
