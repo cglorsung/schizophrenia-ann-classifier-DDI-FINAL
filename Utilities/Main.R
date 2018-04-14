@@ -8,7 +8,7 @@
 supervise <- TRUE
 
 # Number of iterations
-iterations <- 10
+iterations <- 1000
 
 # Read data file
 fileData <- read.csv("../DataFiles/SampleSet.csv", header<-FALSE)
@@ -62,13 +62,13 @@ for(i in 0:iterations) {
 
     # Calculate errors and deltas
     error3 <- outArr - lay3
-    delta3 <- error3 * sigmoid(lay3, TRUE)
+    delta3 <- error3 * sigmoid(lay3, derive=TRUE)
 
     error2 <- (delta3 %*% t(syn2))
-    delta2 <- error2 * sigmoid(lay2, TRUE)
+    delta2 <- error2 * sigmoid(lay2, derive=TRUE)
 
     error1 <- (delta2 %*% t(syn1))
-    delta1 <- error1 * sigmoid(lay1, TRUE)
+    delta1 <- error1 * sigmoid(lay1, derive=TRUE)
 
     # Propagate errors back
     syn2 <- syn2 + (t(lay2) %*% delta3)
