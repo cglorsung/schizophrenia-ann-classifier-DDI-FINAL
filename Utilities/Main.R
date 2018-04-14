@@ -5,13 +5,13 @@
 #          in the github repository this file is hosted in.
 
 # Supervision
-supervise = TRUE
+supervise <- TRUE
 
 # Number of iterations
-iterations = 10
+iterations <- 10
 
 # Read data file
-fileData <- read.csv("../DataFiles/SampleSet.csv", header=FALSE)
+fileData <- read.csv("../DataFiles/SampleSet.csv", header<-FALSE)
 
 # Scale file data to interval [-1, 1]
 s.fileData <- t(apply(fileData, 1, function(x)2*((x-min(x))/(max(x)-min(x)))-1))
@@ -52,28 +52,28 @@ syn2 <- matrix(runif(length(syn1), -1.0, 1.0), ncol(syn1), nrow(syn1))
 
 for(i in 0:iterations) {
     # Evaluate layer 0
-    lay0 = s.fileData
+    lay0 <- s.fileData
     # Evaluate layer 1
-    lay1 = sigmoid((lay0 %*% syn0))
+    lay1 <- sigmoid((lay0 %*% syn0))
     # Evaluate layer 2
-    lay2 = sigmoid((lay1 %*% syn1))
+    lay2 <- sigmoid((lay1 %*% syn1))
     # Evaluate layer 3
-    lay3 = sigmoid((lay2 %*% syn2))
+    lay3 <- sigmoid((lay2 %*% syn2))
 
     # Calculate errors and deltas
-    error3 = outArr - lay3
-    delta3 = error3 * sigmoid(lay3, TRUE)
+    error3 <- outArr - lay3
+    delta3 <- error3 * sigmoid(lay3, TRUE)
 
-    error2 = (delta3 %*% t(syn2))
-    delta2 = error2 * sigmoid(lay2, TRUE)
+    error2 <- (delta3 %*% t(syn2))
+    delta2 <- error2 * sigmoid(lay2, TRUE)
 
-    error1 = (delta2 %*% t(syn1))
-    delta1 = error1 * sigmoid(lay1, TRUE)
+    error1 <- (delta2 %*% t(syn1))
+    delta1 <- error1 * sigmoid(lay1, TRUE)
 
     # Propagate errors back
-    syn2 = syn2 + (t(lay2) %*% delta3)
-    syn1 = syn1 + (t(lay1) %*% delta2)
-    syn0 = syn0 + (t(lay0) %*% delta1)
+    syn2 <- syn2 + (t(lay2) %*% delta3)
+    syn1 <- syn1 + (t(lay1) %*% delta2)
+    syn0 <- syn0 + (t(lay0) %*% delta1)
 }
 
 # Print out final values
