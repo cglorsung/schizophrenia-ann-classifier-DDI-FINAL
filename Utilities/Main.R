@@ -8,18 +8,22 @@
 supervise <- TRUE
 
 # Number of iterations
-iterations <- 10
+iterations <- 100
 
 # Read data file
 fileData <- read.csv("../DataFiles/SampleSet.csv", header<-FALSE)
 
 # Scale file data to interval [-1, 1]
-# s.fileData <- apply(fileData, 1, function(x)2*((x-min(x))/(max(x)-min(x)))-1)
+s.fileData <- t(apply(fileData, 1, function(x)2*((x-min(x))/(max(x)-min(x)))-1))
 
-s.fileData <- s.fileData / norm(s.fileData)
+maxVals <- apply(fileData[,0:length(fileData)], 2, max)
+minVals <- apply(fileData[,0:length(fileData)], 2, min)
+
+# s.Data <- (as.data.frame(scale(fileData[,0:length(fileData)], center=minVals, scale=maxVals-minVals))) * 2 - 1
 
 # Put data into matrix datatype
 s.fileData <- matrix(s.fileData, nrow(s.fileData), ncol(s.fileData))
+
 # print(s.fileData)
 # Dimension values
 sfdCols <- ncol(s.fileData)
