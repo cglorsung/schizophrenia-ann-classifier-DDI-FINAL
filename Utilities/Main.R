@@ -18,7 +18,7 @@ s.fileData <- t(apply(fileData, 1, function(x)2*((x-min(x))/(max(x)-min(x)))-1))
 
 # Put data into matrix datatype
 s.fileData <- matrix(s.fileData, nrow(s.fileData), ncol(s.fileData))
-
+# print(s.fileData)
 # Dimension values
 sfdCols <- ncol(s.fileData)
 sfdRows <- nrow(s.fileData)
@@ -45,8 +45,12 @@ if(supervise) {
 syn0 <- matrix(runif(sfdVals, -1.0, 1.0), sfdCols, 1)
 syn1 <- matrix(runif(length(outArr), -1.0, 1.0), ncol(outArr), nrow(outArr))
 syn2 <- matrix(runif(length(syn1), -1.0, 1.0), ncol(syn1), nrow(syn1))
+syn3 <- matrix(runif(length(syn2), -1.0, 1.0), ncol(syn2), nrow(syn2))
 
 # Debugging print
+# cat(sprintf("MAX SYN0: %s | MIN SYN0: %s\n", max(syn0), min(syn0)))
+# cat(sprintf("MAX SYN1: %s | MIN SYN1: %s\n", max(syn1), min(syn1)))
+# cat(sprintf("MAX SYN2: %s | MIN SYN2: %s\n", max(syn2), min(syn2)))
 # print(sigmoid(s.fileData %*% syn0))
 # cat(sprintf("SYN2 DIMS: %s x %s \nOUTARR DIMS: %s x %s\n", nrow(syn2), ncol(syn2), nrow(outArr), ncol(outArr)))
 
@@ -59,9 +63,14 @@ for(i in 0:iterations) {
     lay2 <- sigmoid((lay1 %*% syn1))
     # Evaluate layer 3
     lay3 <- sigmoid((lay2 %*% syn2))
+    # Evaluate layer 4
+    lay4 <- sigmoid((lay3 %*% syn3))
 
     # Calculate errors and deltas
-    error3 <- outArr - lay3
+    error4 <- outArr - lay4
+    delta4 <- error4 * sigmoid(lay4, derive=TRUE)
+
+    error3 <- (delta4 %*% t(syn3))
     delta3 <- error3 * sigmoid(lay3, derive=TRUE)
 
     error2 <- (delta3 %*% t(syn2))
@@ -71,6 +80,7 @@ for(i in 0:iterations) {
     delta1 <- error1 * sigmoid(lay1, derive=TRUE)
 
     # Propagate errors back
+    syn3 <- syn3 + (t(lay3) %*% delta4)
     syn2 <- syn2 + (t(lay2) %*% delta3)
     syn1 <- syn1 + (t(lay1) %*% delta2)
     syn0 <- syn0 + (t(lay0) %*% delta1)
@@ -79,4 +89,4 @@ for(i in 0:iterations) {
 # Print out final values
 # cat(sprintf("LAY1: %s\n", lay1))
 # NEED TO WORK ON LAYERING/ERROR PROPAGATION. CURRENTLY CANNOT TELL ONE GROUP FROM THE OTHER
-print(lay3)
+print(lay4)
