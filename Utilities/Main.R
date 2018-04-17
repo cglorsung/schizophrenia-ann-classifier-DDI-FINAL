@@ -8,13 +8,15 @@
 supervise <- TRUE
 
 # Number of iterations
-iterations <- 1000
+iterations <- 10
 
 # Read data file
 fileData <- read.csv("../DataFiles/SampleSet.csv", header<-FALSE)
 
 # Scale file data to interval [-1, 1]
-s.fileData <- t(apply(fileData, 1, function(x)2*((x-min(x))/(max(x)-min(x)))-1))
+# s.fileData <- apply(fileData, 1, function(x)2*((x-min(x))/(max(x)-min(x)))-1)
+
+s.fileData <- s.fileData / norm(s.fileData)
 
 # Put data into matrix datatype
 s.fileData <- matrix(s.fileData, nrow(s.fileData), ncol(s.fileData))
@@ -41,30 +43,31 @@ if(supervise) {
 } else {
     outArr <- matrix(c(0), sfdRows, 1)
 }
+
 # Synapse 0
-syn0 <- matrix(runif(sfdVals, -1.0, 1.0), sfdCols, 1)
-syn1 <- matrix(runif(length(outArr), -1.0, 1.0), ncol(outArr), nrow(outArr))
+syn0 <- matrix(runif(sfdVals, -1.0, 1.0), sfdCols, sfdRows)
+syn1 <- matrix(runif(length(outArr), -1.0, 1.0), nrow(outArr), ncol(outArr))
 syn2 <- matrix(runif(length(syn1), -1.0, 1.0), ncol(syn1), nrow(syn1))
-syn3 <- matrix(runif(length(syn2), -1.0, 1.0), ncol(syn2), nrow(syn2))
+syn3 <- matrix(runif(length(outArr), -1.0, 1.0), nrow(outArr), ncol(outArr))
 
 # Debugging print
 # cat(sprintf("MAX SYN0: %s | MIN SYN0: %s\n", max(syn0), min(syn0)))
 # cat(sprintf("MAX SYN1: %s | MIN SYN1: %s\n", max(syn1), min(syn1)))
 # cat(sprintf("MAX SYN2: %s | MIN SYN2: %s\n", max(syn2), min(syn2)))
 # print(sigmoid(s.fileData %*% syn0))
-# cat(sprintf("SYN2 DIMS: %s x %s \nOUTARR DIMS: %s x %s\n", nrow(syn2), ncol(syn2), nrow(outArr), ncol(outArr)))
+cat(sprintf("SYN3 DIMS: %s x %s \nOUTARR DIMS: %s x %s\n", nrow(syn3), ncol(syn3), nrow(outArr), ncol(outArr)))
 
 for(i in 0:iterations) {
     # Evaluate layer 0
     lay0 <- s.fileData
     # Evaluate layer 1
-    lay1 <- sigmoid((lay0 %*% syn0))
+    lay1 <- sigmoid(lay0 %*% syn0)
     # Evaluate layer 2
-    lay2 <- sigmoid((lay1 %*% syn1))
+    lay2 <- sigmoid(lay1 %*% syn1)
     # Evaluate layer 3
-    lay3 <- sigmoid((lay2 %*% syn2))
+    lay3 <- sigmoid(lay2 %*% syn2)
     # Evaluate layer 4
-    lay4 <- sigmoid((lay3 %*% syn3))
+    lay4 <- sigmoid(lay3 %*% syn3)
 
     # Calculate errors and deltas
     error4 <- outArr - lay4
