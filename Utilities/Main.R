@@ -13,13 +13,13 @@ fileName <- "SampleData"
 fileData <- read.csv(paste(fileDir, fileName, ".csv", sep=""), header<-TRUE)
 
 # How many iterations?
-global.iter = 1e2
+global.iter = 1e5
 
 # How many hidden layers?
-global.layer = 5
+global.layer = 15
 
 # File output options
-outDir  <- paste("Results/", fileName, "/", "ITER_", toString(global.iter), "/", sep="")
+outDir  <- paste("Results/", fileName, "/", "I", toString(global.iter), ".L", toString(global.layer), "/", sep="")
 dir.create(outDir, showWarnings=FALSE)
 resFile <- paste(outDir, fileName, toString(global.iter), "Results.csv", sep="")
 matFile <- paste(outDir, fileName, toString(global.iter), "CMatrix.csv", sep="")
@@ -58,7 +58,8 @@ train <- function(x, y, hidden=5, RATE = 1e-2, iter = 1e4) {
     for(i in 1:iter) {
         ff <- feedForward(x, w1, w2)
         bp <- backProp(x, y, y_hat = ff$output, w1, w2, h = ff$h, RATE = RATE)
-        w1 <- bp$w1; w2 <- bp$w2
+        w1 <- bp$w1
+        w2 <- bp$w2
     }
     list(output = ff$output, w1 = w1, w2 = w2)
 }
@@ -108,7 +109,7 @@ rinfo <- R.version
 str <- sprintf(
 "---PERFORMANCE---
 RECORDS : %d
-RUNTIME : %fs
+RUNTIME : %gs
 CORRECT : %f%%
 
 ---NN INFO---
