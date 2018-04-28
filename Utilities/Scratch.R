@@ -5,7 +5,7 @@
 #          in the github repository this file is hosted in.
 
 # Read data file
-fileData <- read.csv("../DataFiles/ERPdata.csv", header<-TRUE)
+fileData <- read.csv("../DataFiles/SampleData.csv", header<-TRUE)
 
 # Sigmoid function (logistic)
 sig <- function(x) {
@@ -45,11 +45,47 @@ train <- function(x, y, hidden=5, RATE = 1e-2, iter = 1e4) {
     list(output = ff$output, w1 = w1, w2 = w2)
 }
 
-# Training example
+# Training the neural network
 print(fileData[1,])
-last <- 0
-for(i in 1:nrow(fileData)) {
-    if(fileData[i,]$class == 1) {
-        print(fileData[i,]$subject)
+
+x <- data.matrix(fileData[,3:11])
+y <- fileData$class == '1'
+nnet <- train(x, y, hidden=5, iter=1e2)
+
+# Confusion Matrix
+headings <- c('SAMPLES', 'PREDICT FALSE', 'PREDICT TRUE')
+
+## Confusion values
+cv <- {
+    cv.PFAF <- 0
+    cv.PTAF <- 0
+    cv.PFAT <- 0
+    cv.PTAT <- 0
+
+    for(i in 1:length(fileData$class)) {
+        if(nnet$output[i] <= .5 && fileData$class[i] == 0) {
+            cv.PFAF <- cv.PFAF + 1
+        }
+        if(nnet$output[i] >  .5 && fileData$class[i] == 0) {
+            cv.PTAF <- cv.PTAF + 1
+        }
+        if(nnet$output[i] <= .5 && fileData$class[i] == 1) {
+            cv.PFAT <- cv.PFAT + 1
+        }
+        if(nnet$output[i] >  .5 && fileData$class[i] == 1) {
+            cv.PTAT <- cv.PTAT + 1
+        }
     }
+    list(n = length(nnet$output), FF = cv.PFAF, TF = cv.PTAF, FT = cv.PFAT, TT = cv.PTAT)
 }
+
+## Set up Confusion matrix
+matrixRows   <- c("ACTUAL FALSE", "ACTUAL TRUE", "TOTALS")
+predictFalse <- c(cv$FF, cv$FT, (cv$FF + cv$FT))
+predictTrue  <- c(cv$TF, cv$TT, (cv$TF + cv$TT))
+predictTotal <- c((cv$FF + cv$TF), (cv$FT + cv$TT), cv$n)
+confMat <- data.frame("PREDICTED FALSE"=predictFalse, "PREDICTED TRUE"=predictTrue, "TOTALS"=predictTotal, row.names=matrixRows)
+
+# File output
+write.csv(cbind(VALUES=c(nnet$output), CLASS=c(fileData$class)), file="Results/Results.csv", row.names=FALSE)
+write.csv(confMat, file="Results/ConfusionMatrix.csv")
