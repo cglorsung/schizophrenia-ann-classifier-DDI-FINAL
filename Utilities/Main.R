@@ -4,8 +4,26 @@
 #          a classifier for the schizophrenia data outlined
 #          in the github repository this file is hosted in.
 
+# Timer
+start <- Sys.time()
+
 # Read data file
-fileData <- read.csv("../DataFiles/SampleData.csv", header<-TRUE)
+fileDir  <- "../DataFiles/"
+fileName <- "SampleData"
+fileData <- read.csv(paste(fileDir, fileName, ".csv", sep=""), header<-TRUE)
+
+# How many iterations?
+global.iter = 1e2
+
+# How many hidden layers?
+global.layer = 5
+
+# File output options
+outDir  <- paste("Results/", fileName, "/", "ITER_", toString(global.iter), "/", sep="")
+dir.create(outDir, showWarnings=FALSE)
+resFile <- paste(outDir, fileName, toString(global.iter), "Results.csv", sep="")
+matFile <- paste(outDir, fileName, toString(global.iter), "CMatrix.csv", sep="")
+txtFile <- paste(outDir, "LastConfiguration.txt", sep="")
 
 # Sigmoid function (logistic)
 sig <- function(x) {
@@ -46,11 +64,9 @@ train <- function(x, y, hidden=5, RATE = 1e-2, iter = 1e4) {
 }
 
 # Training the neural network
-print(fileData[1,])
-
 x <- data.matrix(fileData[,3:11])
 y <- fileData$class == '1'
-nnet <- train(x, y, hidden=5, iter=1e2)
+nnet <- train(x, y, hidden=global.layer, iter=global.iter)
 
 # Confusion Matrix
 headings <- c('SAMPLES', 'PREDICT FALSE', 'PREDICT TRUE')
@@ -86,6 +102,36 @@ predictTrue  <- c(cv$TF, cv$TT, (cv$TF + cv$TT))
 predictTotal <- c((cv$FF + cv$TF), (cv$FT + cv$TT), cv$n)
 confMat <- data.frame("PREDICTED FALSE"=predictFalse, "PREDICTED TRUE"=predictTrue, "TOTALS"=predictTotal, row.names=matrixRows)
 
-# File output
-write.csv(cbind(VALUES=c(nnet$output), CLASS=c(fileData$class)), file="Results/Results.csv", row.names=FALSE)
-write.csv(confMat, file="Results/ConfusionMatrix.csv")
+# Configuration print file
+sinfo <- Sys.info()
+rinfo <- R.version
+str <- sprintf(
+"---PERFORMANCE---
+RECORDS : %d
+RUNTIME : %fs
+CORRECT : %f%%
+
+---NN INFO---
+NN ITERATIONS   : %d
+NN HIDDEN LAYERS: %d
+
+---SYSINFO---
+SYSNAME : %s
+RELEASE : %s
+VERSION : %s
+MACHINE : %s
+
+---ENVINFO---
+PLATFORM: %s
+OS      : %s
+VERSION : %s
+V-TITLE : %s",
+cv$n, (Sys.time()-start), mean((nnet$output > .5) == y),
+global.iter, global.layer,
+sinfo['sysname'], sinfo['release'], sinfo['version'], sinfo['machine'],
+rinfo['platform'], rinfo['os'], rinfo['version.string'], rinfo['nickname'])
+
+# Write to the output files
+write.csv(cbind(VALUES=c(nnet$output), CLASS=c(fileData$class)), file=resFile, row.names=FALSE)
+write.csv(confMat, file=matFile)
+write(str, file=txtFile)
