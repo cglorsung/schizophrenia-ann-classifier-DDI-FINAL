@@ -13,10 +13,10 @@ fileName <- "SampleData"
 fileData <- read.csv(paste(fileDir, fileName, ".csv", sep=""), header<-TRUE)
 
 # How many iterations?
-global.iter = 1e5
+global.iter = 1e4
 
 # How many hidden layers?
-global.layer = 15
+global.layer = 10
 
 # File output options
 outDir  <- paste("Results/", fileName, "/", "I", toString(global.iter), ".L", toString(global.layer), "/", sep="")
@@ -67,8 +67,9 @@ train <- function(x, y, hidden=5, RATE = 1e-2, iter = 1e4) {
 # Training the neural network
 x <- data.matrix(fileData[,3:11])
 y <- fileData$class == '1'
-nnet <- train(x, y, hidden=global.layer, iter=global.iter)
-
+runTime <- system.time({
+    nnet <- train(x, y, hidden=global.layer, iter=global.iter)
+})['elapsed']
 # Confusion Matrix
 headings <- c('SAMPLES', 'PREDICT FALSE', 'PREDICT TRUE')
 
@@ -97,7 +98,7 @@ cv <- {
 }
 
 ## Set up Confusion matrix
-matrixRows   <- c("ACTUAL FALSE", "ACTUAL TRUE", "TOTALS")
+matrixRows   <- c("ACTUAL.FALSE", "ACTUAL.TRUE", "TOTALS")
 predictFalse <- c(cv$FF, cv$FT, (cv$FF + cv$FT))
 predictTrue  <- c(cv$TF, cv$TT, (cv$TF + cv$TT))
 predictTotal <- c((cv$FF + cv$TF), (cv$FT + cv$TT), cv$n)
@@ -109,7 +110,7 @@ rinfo <- R.version
 str <- sprintf(
 "---PERFORMANCE---
 RECORDS : %d
-RUNTIME : %gs
+RUNTIME : %f3s
 CORRECT : %f%%
 
 ---NN INFO---
@@ -127,7 +128,7 @@ PLATFORM: %s
 OS      : %s
 VERSION : %s
 V-TITLE : %s",
-cv$n, (Sys.time()-start), mean((nnet$output > .5) == y),
+cv$n, runTime, mean((nnet$output > .5) == y),
 global.iter, global.layer,
 sinfo['sysname'], sinfo['release'], sinfo['version'], sinfo['machine'],
 rinfo['platform'], rinfo['os'], rinfo['version.string'], rinfo['nickname'])
