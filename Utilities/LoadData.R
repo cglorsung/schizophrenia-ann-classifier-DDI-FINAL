@@ -41,11 +41,10 @@ getTrainSet <- function(frame=demoFrame, numPatients=2) {
         adjsList <- as.data.frame(na.omit(frame$sList))             # Omit NA values from sList
         sPatient <- adjsList[sample(nrow(adjsList), numPatients), ] # Randomly get <numPatients> values from adjsList
 
-        newDatFrame <- as.data.frame(cbind(nPatient=nPatient, sPatient=sPatient))
-        print(newDatFrame)
+        newDatFrame <- as.data.frame(cbind(nPatient=nPatient, sPatient=sPatient)) # Dataframe with subject numbers
 
-        nSet <- as.data.frame(na.omit(fileData[(fileData$subject %in% newDatFrame$nPatient), ]))
-        sSet <- as.data.frame(na.omit(fileData[(fileData$subject %in% newDatFrame$sPatient), ]))
+        nSet <- as.data.frame(na.omit(fileData[(fileData$subject %in% newDatFrame$nPatient), ])) # Get records for nList
+        sSet <- as.data.frame(na.omit(fileData[(fileData$subject %in% newDatFrame$sPatient), ])) # Get records for sList
         
         return(rbind(nSet, sSet))
     }
