@@ -45,7 +45,6 @@ getTrainSet <- function(frame=demoFrame, numPatients=2) {
 
         nSet <- as.data.frame(na.omit(fileData[(fileData$subject %in% newDatFrame$nPatient), ])) # Get records for nList
         sSet <- as.data.frame(na.omit(fileData[(fileData$subject %in% newDatFrame$sPatient), ])) # Get records for sList
-        
-        return(rbind(nSet, sSet))
+        write.csv(rbind(nSet, sSet), file="../DataFiles/SampleData.csv")
     }
 }

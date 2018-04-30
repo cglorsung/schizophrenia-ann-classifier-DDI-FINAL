@@ -6,16 +6,18 @@
 
 source("Utilities/LoadData.R")
 
+getTrainSet(numPatients=2)
+
 # Read data file
 fileDir  <- "../DataFiles/"
 fileName <- "SampleData"
 fileData <- read.csv(paste(fileDir, fileName, ".csv", sep=""), header<-TRUE)
 
 # How many iterations?
-global.iter = 1e2
+global.iter = 1e3
 
 # How many hidden layers?
-global.layer = 5
+global.layer = 10
 
 # File output options
 outDir  <- paste("Results/", fileName, "/", "I", toString(global.iter), ".L", toString(global.layer), "/", sep="")
