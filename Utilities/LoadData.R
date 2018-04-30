@@ -27,7 +27,7 @@ fileDir  <- "../DataFiles/button-tone-sz/"
 fileName <- "ERPdata"
 fileData <- read.csv(paste(fileDir, fileName, ".csv", sep=""), header<-TRUE)
 
-getTrainSet <- function(frame, numRows) {
+getTrainSet <- function(frame=demoFrame, numPatients=1) {
     if("nList" %in% colnames(frame) == FALSE && "sList" %in% colnames(frame) == FALSE) {
         stop("No \"nList\" or \"sList\" in evaluated frame.\nDataframe must contain only two columns: nList and sList")
     } else if("sList" %in% colnames(frame) == FALSE) {

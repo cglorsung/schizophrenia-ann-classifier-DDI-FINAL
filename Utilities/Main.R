@@ -4,13 +4,15 @@
 #          a classifier for the schizophrenia data outlined
 #          in the github repository this file is hosted in.
 
+source("Utilities/LoadData.R")
+
 # Read data file
 fileDir  <- "../DataFiles/"
 fileName <- "SampleData"
 fileData <- read.csv(paste(fileDir, fileName, ".csv", sep=""), header<-TRUE)
 
 # How many iterations?
-global.iter = 1e4
+global.iter = 1e2
 
 # How many hidden layers?
 global.layer = 5
