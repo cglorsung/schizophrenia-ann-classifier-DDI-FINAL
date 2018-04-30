@@ -13,10 +13,10 @@ fileName <- "SampleData"
 fileData <- read.csv(paste(fileDir, fileName, ".csv", sep=""), header<-TRUE)
 
 # How many iterations?
-global.iter = 1e2
+global.iter = 1e6
 
 # How many hidden layers?
-global.layer = 10
+global.layer = 15
 
 # File output options
 outDir  <- paste("Results/", fileName, "/", "I", toString(global.iter), ".L", toString(global.layer), "/", sep="")
