@@ -27,7 +27,7 @@ fileDir  <- "../DataFiles/button-tone-sz/"
 fileName <- "ERPdata"
 fileData <- read.csv(paste(fileDir, fileName, ".csv", sep=""), header<-TRUE)
 
-getTrainSet <- function(frame=demoFrame, numPatients=1) {
+getTrainSet <- function(frame=demoFrame, numPatients=2) {
     if("nList" %in% colnames(frame) == FALSE && "sList" %in% colnames(frame) == FALSE) {
         stop("No \"nList\" or \"sList\" in evaluated frame.\nDataframe must contain only two columns: nList and sList")
     } else if("sList" %in% colnames(frame) == FALSE) {
@@ -35,6 +35,18 @@ getTrainSet <- function(frame=demoFrame, numPatients=1) {
     } else if("nList" %in% colnames(frame) == FALSE) {
         stop("No \"nList\" in evaluated frame.\nDataframe must contain only two columns: nList and sList")
     } else {
+        adjnList <- as.data.frame(na.omit(frame$nList))             # Omit NA values from nList
+        nPatient <- adjnList[sample(nrow(adjnList), numPatients), ] # Randomly get <numPatients> values from adjnList
+
+        adjsList <- as.data.frame(na.omit(frame$sList))             # Omit NA values from sList
+        sPatient <- adjsList[sample(nrow(adjsList), numPatients), ] # Randomly get <numPatients> values from adjsList
+
+        newDatFrame <- as.data.frame(cbind(nPatient=nPatient, sPatient=sPatient))
+        print(newDatFrame)
+
+        nSet <- as.data.frame(na.omit(fileData[(fileData$subject %in% newDatFrame$nPatient), ]))
+        sSet <- as.data.frame(na.omit(fileData[(fileData$subject %in% newDatFrame$sPatient), ]))
         
+        return(rbind(nSet, sSet))
     }
 }
