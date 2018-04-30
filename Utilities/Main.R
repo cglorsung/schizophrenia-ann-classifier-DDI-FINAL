@@ -4,9 +4,6 @@
 #          a classifier for the schizophrenia data outlined
 #          in the github repository this file is hosted in.
 
-# Timer
-start <- Sys.time()
-
 # Read data file
 fileDir  <- "../DataFiles/"
 fileName <- "SampleData"
