@@ -10,12 +10,10 @@ demoName <- "demographic"
 demoData <- read.csv(paste(demoDir, demoName, ".csv", sep=""), header<-TRUE)
 
 # Get lists based on class value
-sList <- demoData$subject[(demoData$group == 1)]
-nList <- demoData$subject[(demoData$group == 0)]
+sList <- demoData$subject[(demoData$group == 1)] # Schizophrenia list
+nList <- demoData$subject[(demoData$group == 0)] # Non-schizophrenia list
 
 # Build dataframe with subject numbers according to class values
-# sList = patients with schizophrenia
-# nList = patients without schizophrenia
 demoFrame <- data.frame(subset(cbind(mVal=
 {
     n <- max(length(sList), length(nList)) # Max vector length
@@ -28,3 +26,15 @@ demoFrame <- data.frame(subset(cbind(mVal=
 fileDir  <- "../DataFiles/button-tone-sz/"
 fileName <- "ERPdata"
 fileData <- read.csv(paste(fileDir, fileName, ".csv", sep=""), header<-TRUE)
+
+getTrainSet <- function(frame, numRows) {
+    if("nList" %in% colnames(frame) == FALSE && "sList" %in% colnames(frame) == FALSE) {
+        stop("No \"nList\" or \"sList\" in evaluated frame.\nDataframe must contain only two columns: nList and sList")
+    } else if("sList" %in% colnames(frame) == FALSE) {
+        stop("No \"sList\" in evaluated frame.\nDataframe must contain only two columns: nList and sList")
+    } else if("nList" %in% colnames(frame) == FALSE) {
+        stop("No \"nList\" in evaluated frame.\nDataframe must contain only two columns: nList and sList")
+    } else {
+        
+    }
+}
