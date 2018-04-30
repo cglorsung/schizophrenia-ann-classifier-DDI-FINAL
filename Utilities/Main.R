@@ -13,10 +13,10 @@ fileName <- "SampleData"
 fileData <- read.csv(paste(fileDir, fileName, ".csv", sep=""), header<-TRUE)
 
 # How many iterations?
-global.iter = 1e6
+global.iter = 1e4
 
 # How many hidden layers?
-global.layer = 15
+global.layer = 5
 
 # File output options
 outDir  <- paste("Results/", fileName, "/", "I", toString(global.iter), ".L", toString(global.layer), "/", sep="")
@@ -70,6 +70,7 @@ y <- fileData$class == '1'
 runTime <- system.time({
     nnet <- train(x, y, hidden=global.layer, iter=global.iter)
 })['elapsed']
+
 # Confusion Matrix
 headings <- c('SAMPLES', 'PREDICT FALSE', 'PREDICT TRUE')
 
@@ -81,16 +82,16 @@ cv <- {
     cv.PTAT <- 0
 
     for(i in 1:length(fileData$class)) {
-        if(nnet$output[i] <= .5 && fileData$class[i] == 0) {
+        if(nnet$output[i] <= .5 && fileData$class[i] == 0) {  # True negatives
             cv.PFAF <- cv.PFAF + 1
         }
-        if(nnet$output[i] >  .5 && fileData$class[i] == 0) {
+        if(nnet$output[i] >  .5 && fileData$class[i] == 0) {  # False positives
             cv.PTAF <- cv.PTAF + 1
         }
-        if(nnet$output[i] <= .5 && fileData$class[i] == 1) {
+        if(nnet$output[i] <= .5 && fileData$class[i] == 1) {  # False negatives
             cv.PFAT <- cv.PFAT + 1
         }
-        if(nnet$output[i] >  .5 && fileData$class[i] == 1) {
+        if(nnet$output[i] >  .5 && fileData$class[i] == 1) {  # True positives
             cv.PTAT <- cv.PTAT + 1
         }
     }
@@ -128,10 +129,10 @@ PLATFORM: %s
 OS      : %s
 VERSION : %s
 V-TITLE : %s",
-cv$n, runTime, mean((nnet$output > .5) == y),
-global.iter, global.layer,
-sinfo['sysname'], sinfo['release'], sinfo['version'], sinfo['machine'],
-rinfo['platform'], rinfo['os'], rinfo['version.string'], rinfo['nickname'])
+cv$n, runTime, mean((nnet$output > .5) == y),                                 # Performance output
+global.iter, global.layer,                                                    # Neural Net output
+sinfo['sysname'], sinfo['release'], sinfo['version'], sinfo['machine'],       # System output
+rinfo['platform'], rinfo['os'], rinfo['version.string'], rinfo['nickname'])   # R Environment output
 
 # Write to the output files
 write.csv(cbind(VALUES=c(nnet$output), CLASS=c(fileData$class)), file=resFile, row.names=FALSE)
