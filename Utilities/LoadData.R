@@ -4,6 +4,10 @@
 #          a classifier for the schizophrenia data outlined
 #          in the github repository this file is hosted in.
 
+# Global variables
+global.totSet <- data.frame()
+global.patSet <- data.frame()
+
 # Read demographics file
 demoDir  <- "../DataFiles/button-tone-sz/"
 demoName <- "demographic"
@@ -27,8 +31,6 @@ fileDir  <- "../DataFiles/button-tone-sz/"
 fileName <- "ERPdata"
 fileData <- read.csv(paste(fileDir, fileName, ".csv", sep=""), header<-TRUE)
 
-global.totSet <- data.frame()
-
 # Write a CSV with all generated training records
 getTrainSet <- function(frame=demoFrame, numPatients=2) {
     if("nList" %in% colnames(frame) == FALSE && "sList" %in% colnames(frame) == FALSE) {
@@ -44,14 +46,14 @@ getTrainSet <- function(frame=demoFrame, numPatients=2) {
         adjsList <- as.data.frame(na.omit(frame$sList))             # Omit NA values from sList
         sPatient <- adjsList[sample(nrow(adjsList), numPatients), ] # Randomly get <numPatients> values from adjsList
 
-        newDatFrame <- as.data.frame(cbind(nPatient=nPatient, sPatient=sPatient)) # Dataframe with subject numbers
+        global.patSet <<- as.data.frame(cbind(nPatient=nPatient, sPatient=sPatient)) # Dataframe with subject numbers
 
-        nSet <- as.data.frame(na.omit(fileData[(fileData$subject %in% newDatFrame$nPatient), ])) # Get records for nList
-        sSet <- as.data.frame(na.omit(fileData[(fileData$subject %in% newDatFrame$sPatient), ])) # Get records for sList
+        nSet <- as.data.frame(na.omit(fileData[(fileData$subject %in% global.patSet$nPatient), ])) # Get records for nList
+        sSet <- as.data.frame(na.omit(fileData[(fileData$subject %in% global.patSet$sPatient), ])) # Get records for sList
 
         global.totSet <<- rbind(nSet, sSet)
 
-        write.csv(newDatFrame, file="../DataFiles/TestPatientList.csv", row.names=FALSE)
+        write.csv(global.patSet, file="../DataFiles/TestPatientList.csv", row.names=FALSE)
         write.csv(global.totSet, file="../DataFiles/SampleData.csv", row.names=FALSE)
     }
 }
@@ -64,4 +66,8 @@ getTestSet <- function(div=TRUE) {
         # Test set will be all records
         write.csv(fileData, file="../DataFiles/TestData.csv", row.names=FALSE)
     }
+}
+
+getPatSet <- function() {
+    return (global.patSet)
 }

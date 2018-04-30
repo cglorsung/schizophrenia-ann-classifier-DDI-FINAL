@@ -7,6 +7,7 @@
 source("Utilities/LoadData.R")
 
 getTrainSet(numPatients=2)
+getTestSet()
 
 # Read data file
 fileDir  <- "../DataFiles/"
@@ -14,7 +15,7 @@ fileName <- "SampleData"
 fileData <- read.csv(paste(fileDir, fileName, ".csv", sep=""), header<-TRUE)
 
 # How many iterations?
-global.iter = 1e3
+global.iter = 1e1
 
 # How many hidden layers?
 global.layer = 10
@@ -25,6 +26,7 @@ dir.create(outDir, showWarnings=FALSE)
 resFile <- paste(outDir, fileName, toString(global.iter), "Results.csv", sep="")
 matFile <- paste(outDir, fileName, toString(global.iter), "CMatrix.csv", sep="")
 txtFile <- paste(outDir, "LastConfiguration.txt", sep="")
+patFile <- paste(outDir, "TrainingSubjectIDs.csv")
 
 # Sigmoid function (logistic)
 sig <- function(x) {
@@ -137,5 +139,6 @@ rinfo['platform'], rinfo['os'], rinfo['version.string'], rinfo['nickname'])   # 
 
 # Write to the output files
 write.csv(cbind(VALUES=c(nnet$output), CLASS=c(fileData$class)), file=resFile, row.names=FALSE)
+write.csv(getPatSet(), file=patFile)
 write.csv(confMat, file=matFile)
 write(str, file=txtFile)
