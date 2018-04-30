@@ -27,6 +27,9 @@ fileDir  <- "../DataFiles/button-tone-sz/"
 fileName <- "ERPdata"
 fileData <- read.csv(paste(fileDir, fileName, ".csv", sep=""), header<-TRUE)
 
+global.totSet <- data.frame()
+
+# Write a CSV with all generated training records
 getTrainSet <- function(frame=demoFrame, numPatients=2) {
     if("nList" %in% colnames(frame) == FALSE && "sList" %in% colnames(frame) == FALSE) {
         stop("No \"nList\" or \"sList\" in evaluated frame.\nDataframe must contain only two columns: nList and sList")
@@ -45,6 +48,20 @@ getTrainSet <- function(frame=demoFrame, numPatients=2) {
 
         nSet <- as.data.frame(na.omit(fileData[(fileData$subject %in% newDatFrame$nPatient), ])) # Get records for nList
         sSet <- as.data.frame(na.omit(fileData[(fileData$subject %in% newDatFrame$sPatient), ])) # Get records for sList
-        write.csv(rbind(nSet, sSet), file="../DataFiles/SampleData.csv")
+
+        global.totSet <<- rbind(nSet, sSet)
+
+        write.csv(newDatFrame, file="../DataFiles/TestPatientList.csv", row.names=FALSE)
+        write.csv(global.totSet, file="../DataFiles/SampleData.csv", row.names=FALSE)
+    }
+}
+
+getTestSet <- function(div=TRUE) {
+    if(div) {
+        # Remove training records from test set
+        write.csv(fileData[!(fileData$subject %in% global.totSet$subject), ], file="../DataFiles/TestData.csv", row.names=FALSE)
+    } else {
+        # Test set will be all records
+        write.csv(fileData, file="../DataFiles/TestData.csv", row.names=FALSE)
     }
 }
