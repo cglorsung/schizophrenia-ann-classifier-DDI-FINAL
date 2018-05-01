@@ -18,7 +18,7 @@ fileData <- read.csv(paste(fileDir, fileName, ".csv", sep=""), header<-TRUE)
 testData <- read.csv("../DataFiles/TestData.csv", header<-TRUE)
 
 # How many iterations?
-global.iter = 1e4
+global.iter = 1e7
 
 # How many hidden layers?
 global.layer = 10
