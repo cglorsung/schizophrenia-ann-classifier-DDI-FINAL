@@ -4,27 +4,59 @@
 #          a classifier for the schizophrenia data outlined
 #          in the github repository this file is hosted in.
 
-source("Utilities/LoadData.R")
+# Get arguments passed by user
+args <- commandArgs(trailingOnly<-TRUE)
 
-getTrainSet(numPatients=20)
-getTestSet()
+# Recompue the selected patients and files?
+recompute <- TRUE
+
+if(length(args) == 0) {
+    cat(sprintf("Running all functions\n"))
+} else {
+    if(args[1] == 't') {
+        recompute <<- TRUE
+    } else if(args[1] == 'f'){
+        recompute <<- FALSE
+    }
+}
+
+pats <- 2
+
+# Assign number of patients to use in training set
+if(length(args) == 2) {
+    pats <<- args[2]
+}
+
+# Time management
+if(!file.exists("../DataFiles/TestPatientList.csv") || recompute == TRUE || length(args) > 1) {
+    cat(sprintf("Calling LoadData.R\n"))
+    source("LoadData.R")
+    getTrainSet(numPatients=pats)
+    getTestSet()
+}
 
 # Read data file
 fileDir  <- "../DataFiles/"
 fileName <- "SampleData"
+cat(sprintf("Reading %s\n", fileName))
 fileData <- read.csv(paste(fileDir, fileName, ".csv", sep=""), header<-TRUE)
+cat(sprintf("Done reading %s\n", fileName))
 
 # Read test file
+cat(sprintf("Reading TestData\n"))
 testData <- read.csv("../DataFiles/TestData.csv", header<-TRUE)
+cat(sprintf("Done reading TestData\n"))
 
 # How many iterations?
-global.iter = 1e7
+global.iter = 1e2
+cat(sprintf("Training with %d iterations\n", global.iter))
 
 # How many hidden layers?
 global.layer = 10
+cat(sprintf("Using %d hidden layers\n", global.layer))
 
 # File output options
-outDir  <- paste("Results/", fileName, "/", "I", toString(global.iter), ".L", toString(global.layer), "/", sep="")
+outDir  <- paste("../Results/", fileName, "/", "I", toString(global.iter), ".L", toString(global.layer), "/", sep="")
 dir.create(outDir, showWarnings=FALSE)
 resFile <- paste(outDir, fileName, toString(global.iter), "Results.csv", sep="")
 matFile <- paste(outDir, fileName, toString(global.iter), "CMatrix.csv", sep="")
@@ -64,6 +96,7 @@ bp <- NULL
 
 # Training function
 train <- function(x, y, hidden=5, RATE = 1e-2, iter = 1e4) {
+    cat(sprintf("Training...\n"))
     d  <<- ncol(x)+1
     w1 <<- matrix(rnorm(d * hidden), d, hidden)
     w2 <<- as.matrix(rnorm(hidden + 1))
@@ -78,6 +111,7 @@ train <- function(x, y, hidden=5, RATE = 1e-2, iter = 1e4) {
 
 #Testing function
 testNet <- function(testData) {
+    cat(sprintf("Testing...\n"))
     d  <- d
     w1 <- bp$w1
     w2 <- bp$w2
@@ -93,8 +127,10 @@ y <- fileData$class == '1'
 runTime <- system.time({
     nnet <- train(x, y, hidden=global.layer, iter=global.iter)
 })['elapsed']
+cat(sprintf("Done training!\n"))
 
 nnetTest <- testNet(testData=data.matrix(testData[,3:11]))
+cat(sprintf("Done testing!\n"))
 
 # Confusion Matrix
 headings <- c('SAMPLES', 'PREDICT FALSE', 'PREDICT TRUE')
@@ -153,14 +189,25 @@ MACHINE : %s
 PLATFORM: %s
 OS      : %s
 VERSION : %s
-V-TITLE : %s",
+V-TITLE : %s
+",
 cv$n, runTime, mean((nnet$output > .5) == y),                                 # Performance output
 global.iter, global.layer,                                                    # Neural Net output
 sinfo['sysname'], sinfo['release'], sinfo['version'], sinfo['machine'],       # System output
 rinfo['platform'], rinfo['os'], rinfo['version.string'], rinfo['nickname'])   # R Environment output
 
+# Print Configuration print file
+cat(str)
+
 # Write to the output files
 write.csv(cbind(VALUES=c(nnet$output), CLASS=c(fileData$class)), file=resFile, row.names=FALSE)
-write.csv(getPatSet(), file=patFile)
+cat(sprintf("Done writing result file\n"))
+if(recompute) {
+    write.csv(getPatSet(), file=patFile)
+    cat(sprintf("Done writing patient file\n"))
+}
 write.csv(confMat, file=matFile)
+cat(sprintf("Done writing confusion matrix for training data\n"))
 write(str, file=txtFile)
+cat(sprintf("Done writing configuration file\n"))
+cat(sprintf("COMPLETE\n"))

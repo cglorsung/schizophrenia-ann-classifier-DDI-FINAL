@@ -9,9 +9,11 @@ global.totSet <- data.frame()
 global.patSet <- data.frame()
 
 # Read demographics file
-demoDir  <- "../DataFiles/button-tone-sz/"
+demoDir  <- "../DataFiles/"
 demoName <- "demographic"
+cat(sprintf("Reading demographics file\n"))
 demoData <- read.csv(paste(demoDir, demoName, ".csv", sep=""), header<-TRUE)
+cat(sprintf("Done reading demographics file\n"))
 
 # Get lists based on class value
 sList <- demoData$subject[(demoData$group == 1)] # Schizophrenia list
@@ -27,9 +29,11 @@ demoFrame <- data.frame(subset(cbind(mVal=
  sList=sList, nList=nList), select=-mVal)) # Dataframe with columns sList & nList
 
 # Read data file
-fileDir  <- "../DataFiles/button-tone-sz/"
+fileDir  <- "../DataFiles/"
 fileName <- "ERPdata"
+cat(sprintf("Reading ERPdata file\n"))
 fileData <- read.csv(paste(fileDir, fileName, ".csv", sep=""), header<-TRUE)
+cat(sprintf("Done reading ERPdata file\n"))
 
 # Write a CSV with all generated training records
 getTrainSet <- function(frame=demoFrame, numPatients=2) {
@@ -53,18 +57,25 @@ getTrainSet <- function(frame=demoFrame, numPatients=2) {
 
         global.totSet <<- rbind(nSet, sSet)
 
+        cat(sprintf("Writing TestPatientList.csv\n"))
         write.csv(global.patSet, file="../DataFiles/TestPatientList.csv", row.names=FALSE)
+	cat(sprintf("Done writing TestPatientList.csv\nWriting SampleData.csv\n"))
         write.csv(global.totSet, file="../DataFiles/SampleData.csv", row.names=FALSE)
+        cat(sprintf("Done writing SampleData.csv\n"))
     }
 }
 
 getTestSet <- function(div=TRUE) {
     if(div) {
         # Remove training records from test set
+        cat(sprintf("Writing TestData.csv\n"))
         write.csv(fileData[!(fileData$subject %in% global.totSet$subject), ], file="../DataFiles/TestData.csv", row.names=FALSE)
+        cat(sprintf("Done writing TestData.csv without training set\n"))
     } else {
         # Test set will be all records
+        cat(sprintf("Writing TestData.csv\n"))
         write.csv(fileData, file="../DataFiles/TestData.csv", row.names=FALSE)
+        cat(sprintf("Done writing TestData.csv with all records\n"))
     }
 }
 
