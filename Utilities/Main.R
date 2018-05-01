@@ -6,7 +6,7 @@
 
 source("Utilities/LoadData.R")
 
-getTrainSet(numPatients=2)
+getTrainSet(numPatients=20)
 getTestSet()
 
 # Read data file
@@ -14,8 +14,11 @@ fileDir  <- "../DataFiles/"
 fileName <- "SampleData"
 fileData <- read.csv(paste(fileDir, fileName, ".csv", sep=""), header<-TRUE)
 
+# Read test file
+testData <- read.csv("../DataFiles/TestData.csv", header<-TRUE)
+
 # How many iterations?
-global.iter = 1e3
+global.iter = 1e4
 
 # How many hidden layers?
 global.layer = 10
@@ -53,18 +56,35 @@ backProp <- function(x, y, y_hat, w1, w2, h, RATE) {
     list(w1 = w1, w2 = w2)
 }
 
+d  <- NULL
+w1 <- NULL
+w2 <- NULL
+ff <- NULL
+bp <- NULL
+
 # Training function
 train <- function(x, y, hidden=5, RATE = 1e-2, iter = 1e4) {
-    d  <- ncol(x)+1
-    w1 <- matrix(rnorm(d * hidden), d, hidden)
-    w2 <- as.matrix(rnorm(hidden + 1))
+    d  <<- ncol(x)+1
+    w1 <<- matrix(rnorm(d * hidden), d, hidden)
+    w2 <<- as.matrix(rnorm(hidden + 1))
     for(i in 1:iter) {
-        ff <- feedForward(x, w1, w2)
-        bp <- backProp(x, y, y_hat = ff$output, w1, w2, h = ff$h, RATE = RATE)
-        w1 <- bp$w1
-        w2 <- bp$w2
+        ff <<- feedForward(x, w1, w2)
+        bp <<- backProp(x, y, y_hat = ff$output, w1, w2, h = ff$h, RATE = RATE)
+        w1 <<- bp$w1
+        w2 <<- bp$w2
     }
     list(output = ff$output, w1 = w1, w2 = w2)
+}
+
+#Testing function
+testNet <- function(testData) {
+    d  <- d
+    w1 <- bp$w1
+    w2 <- bp$w2
+    #for(i in 1:nrow(testData)) {
+        ff <<- feedForward(testData, w1, w2)
+    #}
+    list(output = ff$output)
 }
 
 # Training the neural network
@@ -73,6 +93,8 @@ y <- fileData$class == '1'
 runTime <- system.time({
     nnet <- train(x, y, hidden=global.layer, iter=global.iter)
 })['elapsed']
+
+nnetTest <- testNet(testData=data.matrix(testData[,3:11]))
 
 # Confusion Matrix
 headings <- c('SAMPLES', 'PREDICT FALSE', 'PREDICT TRUE')
