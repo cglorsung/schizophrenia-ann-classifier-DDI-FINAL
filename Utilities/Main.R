@@ -4,6 +4,14 @@
 #          a classifier for the schizophrenia data outlined
 #          in the github repository this file is hosted in.
 
+library(parallel)
+
+split <- detectCores()
+cat(sprintf("Making cluster\n"))
+cl <- makeCluster(split)
+cat(sprintf("Done making cluster\n"))
+
+
 # Get arguments passed by user
 args <- commandArgs(trailingOnly<-TRUE)
 
@@ -20,7 +28,7 @@ if(length(args) == 0) {
     }
 }
 
-pats <- 2
+pats <- 20 
 
 # Assign number of patients to use in training set
 if(length(args) == 2) {
@@ -48,11 +56,11 @@ testData <- read.csv("../DataFiles/TestData.csv", header<-TRUE)
 cat(sprintf("Done reading TestData\n"))
 
 # How many iterations?
-global.iter = 1e2
+global.iter = 1e4
 cat(sprintf("Training with %d iterations\n", global.iter))
 
 # How many hidden layers?
-global.layer = 10
+global.layer = 45
 cat(sprintf("Using %d hidden layers\n", global.layer))
 
 # File output options
@@ -96,7 +104,15 @@ bp <- NULL
 
 # Training function
 train <- function(x, y, hidden=5, RATE = 1e-2, iter = 1e4) {
-    cat(sprintf("Training...\n"))
+
+    cat(sprintf("\nTraining...\n"))
+
+    # Set up vars for progress bar
+    p    <- 0
+    val  <- global.iter / 100
+    pBar <- txtProgressBar(min=0, max=iter, initial=0, char="#",
+                           style=3)
+
     d  <<- ncol(x)+1
     w1 <<- matrix(rnorm(d * hidden), d, hidden)
     w2 <<- as.matrix(rnorm(hidden + 1))
@@ -105,7 +121,10 @@ train <- function(x, y, hidden=5, RATE = 1e-2, iter = 1e4) {
         bp <<- backProp(x, y, y_hat = ff$output, w1, w2, h = ff$h, RATE = RATE)
         w1 <<- bp$w1
         w2 <<- bp$w2
+        setTxtProgressBar(pBar, i)
     }
+    cat(sprintf("\n"))
+    close(pBar)
     list(output = ff$output, w1 = w1, w2 = w2)
 }
 
@@ -115,9 +134,7 @@ testNet <- function(testData) {
     d  <- d
     w1 <- bp$w1
     w2 <- bp$w2
-    #for(i in 1:nrow(testData)) {
-        ff <<- feedForward(testData, w1, w2)
-    #}
+    ff <<- feedForward(testData, w1, w2)
     list(output = ff$output)
 }
 
@@ -129,6 +146,9 @@ runTime <- system.time({
 })['elapsed']
 cat(sprintf("Done training!\n"))
 
+stopCluster(cl)
+
+y2 <- testData$class == '1'
 nnetTest <- testNet(testData=data.matrix(testData[,3:11]))
 cat(sprintf("Done testing!\n"))
 
@@ -173,7 +193,8 @@ str <- sprintf(
 "---PERFORMANCE---
 RECORDS : %d
 RUNTIME : %f3s
-CORRECT : %f%%
+trainCORRECT : %f%%
+testCORRECT  : %f%%
 
 ---NN INFO---
 NN ITERATIONS   : %d
@@ -191,10 +212,10 @@ OS      : %s
 VERSION : %s
 V-TITLE : %s
 ",
-cv$n, runTime, mean((nnet$output > .5) == y),                                 # Performance output
-global.iter, global.layer,                                                    # Neural Net output
-sinfo['sysname'], sinfo['release'], sinfo['version'], sinfo['machine'],       # System output
-rinfo['platform'], rinfo['os'], rinfo['version.string'], rinfo['nickname'])   # R Environment output
+cv$n, runTime, mean((nnet$output > .5) == y), mean(( nnetTest$output > .5) == y2), # Performance output
+global.iter, global.layer,                                                         # Neural Net output
+sinfo['sysname'], sinfo['release'], sinfo['version'], sinfo['machine'],            # System output
+rinfo['platform'], rinfo['os'], rinfo['version.string'], rinfo['nickname'])        # R Environment output
 
 # Print Configuration print file
 cat(str)
