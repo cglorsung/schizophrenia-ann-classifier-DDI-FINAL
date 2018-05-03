@@ -21,7 +21,8 @@ errFile <- file('error_log.RLOG', open='wt')
 sink(errFile, type='message')
 
 # Number of hidden layers?
-hiddenNum <- 8
+hiddenNum <- 100
+print(paste("Working with ", hiddenNum, " layers!"))
 
 # Output directory
 outDir <- paste('../Results/caretOutput/',hiddenNum,'/', sep="")
@@ -37,56 +38,73 @@ print("Reading data")
 trainData <- read.csv('../DataFiles/ERPdata.csv', header <- TRUE)
 print("Done reading data")
 
-cat('Continue?')
-a <- readLines("stdin", n=1)
-if(a == "n") {
-    print("Exiting..")
-    quit()
-}
-y <- as.factor(make.names(trainData$class))
+#cat('Continue?')
+#a <- readLines("stdin", n=1)
+#if(a == "n") {
+#    print("Exiting..")
+#    quit()
+#}
+
+trainData$class <- ifelse(trainData$class == '0', 'N', 'S')
+y <- as.factor(as.character(trainData$class))
 
 trainData$class <- y
 
-# names <- setdiff(names(trainData), toRemove)
+trainData <- trainData[, names(trainData)]
 
-# data <- trainData[, names]
+inputData <- createDataPartition(trainData$class, p = .6, list = FALSE, times = 1)
 
-inputData <- createDataPartition(trainData$class, p <- .65)[[1]]
+print(nrow(inputData))
+print(nrow(trainData[inputData,]))
+print(nrow(trainData[-inputData,]))
 
-train <- trainData[inputData, ]
-test  <- trainData[-inputData, ]
+trainSet <- trainData[inputData,]
+testSet  <- trainData[-inputData,]
+
+trainNA <- any(is.na(trainSet))
+testNA <- any(is.na(testSet))
+
+cat(sprintf("TRAIN NA?: %s\nTEST NA?: %s\n", trainNA, testNA))
 
 print("Beginning training!")
 num <- trainControl(method = 'cv',
-                    number = 8,
+                    number = 10,
                     classProbs = TRUE,
                     verboseIter = FALSE,
+                    summaryFunction = twoClassSummary,
                     allowParallel = TRUE)
 
-fit <- train(class ~ Fz + FCz + Cz + FC3 + FC4 + C3 + C4 + CP3 + CP4,
-             data = train,
+fit <- train(trainSet[, 3:11],
+             trainSet$class,
              method = 'nnet',
-             metric = 'Accuracy',
+             MaxNWts = 1200,
              trControl = num,
              tuneGrid = expand.grid(size = c(hiddenNum), decay=c(0.1)), linout = 0)
+
+#fit <- train(class ~ Fz + FCz + Cz + FC3 + FC4 + C3 + C4 + CP3 + CP4,
+ #            data = train,
+  #           method = 'nnet',
+   #          metric = 'Accuracy',
+    #         trControl = num,
+     #        tuneGrid = expand.grid(size = c(hiddenNum), decay=c(0.1)), linout = 0)
 
 print("Done training!")
 
 print("Predict train results!")
-trainRslt <- predict(fit, newdata=train)
-trainConf <- confusionMatrix(trainRslt, train$class)
+trainRslt <- predict(fit, newdata=trainSet)
+trainConf <- confusionMatrix(trainRslt, trainSet$class)
 print(trainConf, mode = "everything", digits = 4)
 print("Done!")
 
 print("Predict test results!")
-testRslt  <- predict(fit, newdata=test)
-testConf  <- confusionMatrix(testRslt, test$class)
+testRslt  <- predict(fit, newdata=testSet)
+testConf  <- confusionMatrix(testRslt, testSet$class)
 print(testConf, mode = "everything", digits = 4)
 print("Done!")
 
-probabilities <- predict(fit, newdata=test, type='prob')
+probabilities <- predict(fit, newdata=testSet, type='prob')
 
-out <- data.frame(SUBJECT=test$subject)
+out <- data.frame(SUBJECT=testSet$subject)
 out <- cbind(out, CLASS=probabilities$X1)
 
 print("Writing training confusion matrix!")
