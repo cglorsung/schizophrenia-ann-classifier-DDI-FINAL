@@ -8,6 +8,14 @@ library(caret)
 library(doParallel)
 library(neuralnet)
 
+
+# Reset all extra sink instances
+sink.reset <- function() {
+    for(i in seq_len(sink.number())) {
+        sink(NULL)
+    }
+}
+
 # Direct errors to a log file
 errFile <- file('error_log.RLOG', open='wt')
 sink(errFile, type='message')
@@ -50,7 +58,7 @@ train <- trainData[inputData, ]
 test  <- trainData[-inputData, ]
 
 print("Beginning training!")
-num <- trainControl(method = 'cv', number = 10, classProbs = TRUE, verboseIter = FALSE, summaryFunction = twoClassSummary)
+num <- trainControl(method = 'cv', number = 100, classProbs = TRUE, verboseIter = FALSE, summaryFunction = twoClassSummary, allowParallel = TRUE)
 fit <- train(class ~ Fz + FCz + Cz + FC3 + FC4 + C3 + C4 + CP3 + CP4, data = train, method = 'nnet', trControl = num, tuneGrid = expand.grid(size=c(10), decay=c(0.1)), linout = 0)
 print("Done training!")
 
@@ -67,13 +75,23 @@ print("Done!")
 probabilities <- predict(fit, newdata=test, type='prob')
 
 out <- data.frame(SUBJECT=test$subject)
-out <- cbind(out, CLASS=probs$X1)
+out <- cbind(out, CLASS=probabilities$X1)
 
-write.csv(trainConf, file="../Results/caretOutput/TrainingConfMat.csv", row.names=FALSE)
-write.csv(testConf, file="../Results/caretOutput/TestingConfMat.csv", row.names=FALSE)
+print("Writing training confusion matrix!")
+write.csv(as.matrix(trainConf), file='../Results/caretOutput/TrainingConfMat.csv')
+write.csv(as.matrix(trainConf, what = "classes"), file='../Results/caretOutput/TrainingConfMatClasses.csv')
+write.csv(as.matrix(trainConf, what = "overall"), file='../Results/caretOutput/TrainingConfMatOverall.csv')
+print("Done!")
+
+print("Writing testing confusion matrix!")
+write.csv(as.matrix(testConf), file='../Results/caretOutput/TestingConfMat.csv')
+write.csv(as.matrix(testConf, what = "classes"), file='../Results/caretOutput/TestingConfMatClasses.csv')
+write.csv(as.matrix(testConf, what = "overall"), file='../Results/caretOutput/TestingConfMatOverall.csv')
+print("Done!")
+
 write.csv(out, file="../Results/caretOutput/PackageOut.csv", row.names=FALSE)
 
 #nnet <- neuralnet(trainFileData$class ~ trainNN$Fz + trainNN$FCz + trainNN$Cz + trainNN$FC3 + trainNN$FC4 + trainNN$C3 + trainNN$C4 + trainNN$CP3 + trainNN$CP4, trainNN, hidden=5, linear.output = T)
 stopCluster(cl)
-close(errFile)
+
 print("Done!")
