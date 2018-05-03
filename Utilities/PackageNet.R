@@ -52,14 +52,26 @@ trainData$class <- y
 
 # data <- trainData[, names]
 
-inputData <- createDataPartition(trainData$class, p <- .60)[[1]]
+inputData <- createDataPartition(trainData$class, p <- .65)[[1]]
 
 train <- trainData[inputData, ]
 test  <- trainData[-inputData, ]
 
 print("Beginning training!")
-num <- trainControl(method = 'cv', number = 100, classProbs = TRUE, verboseIter = FALSE, summaryFunction = twoClassSummary, allowParallel = TRUE)
-fit <- train(class ~ Fz + FCz + Cz + FC3 + FC4 + C3 + C4 + CP3 + CP4, data = train, method = 'nnet', trControl = num, tuneGrid = expand.grid(size=c(10), decay=c(0.1)), linout = 0)
+num <- trainControl(method = 'cv',
+                    number = 10,
+                    classProbs = TRUE,
+                    verboseIter = FALSE,
+                    summaryFunction = twoClassSummary,
+                    allowParallel = TRUE)
+
+fit <- train(class ~ Fz + FCz + Cz + FC3 + FC4 + C3 + C4 + CP3 + CP4,
+             data = train,
+             method = 'nnet',
+             metric = 'Accuracy',
+             trControl = num,
+             tuneGrid = expand.grid(size = c(10, 20, 69), decay=c(0.5, 0.1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7)), linout = 0)
+
 print("Done training!")
 
 print("Predict train results!")
