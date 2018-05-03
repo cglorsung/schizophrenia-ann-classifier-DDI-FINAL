@@ -70,7 +70,7 @@ fit <- train(class ~ Fz + FCz + Cz + FC3 + FC4 + C3 + C4 + CP3 + CP4,
              method = 'nnet',
              metric = 'Accuracy',
              trControl = num,
-             tuneGrid = expand.grid(size = c(10, 20, 69), decay=c(0.5, 0.1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7)), linout = 0)
+             tuneGrid = expand.grid(size = c(45), decay=c(1e-2)), linout = 0)
 
 print("Done training!")
 
