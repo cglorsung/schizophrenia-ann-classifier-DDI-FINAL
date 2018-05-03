@@ -21,11 +21,11 @@ errFile <- file('error_log.RLOG', open='wt')
 sink(errFile, type='message')
 
 # Number of hidden layers?
-hiddenNum <- 100
+hiddenNum <- 5
 print(paste("Working with ", hiddenNum, " layers!"))
 
 # Output directory
-outDir <- paste('../Results/caretOutput/',hiddenNum,'/', sep="")
+outDir <- paste('./Results/caretOutput/',hiddenNum,'/', sep="")
 dir.create(outDir, showWarnings=FALSE)
 
 # Make the parallel cluster
@@ -35,7 +35,7 @@ registerDoParallel(cl)
 print("Done making cluster!")
 
 print("Reading data")
-trainData <- read.csv('../DataFiles/ERPdata.csv', header <- TRUE)
+trainData <- read.csv('./DataFiles/ERPdata.csv', header <- TRUE)
 print("Done reading data")
 
 #cat('Continue?')
@@ -68,7 +68,7 @@ cat(sprintf("TRAIN NA?: %s\nTEST NA?: %s\n", trainNA, testNA))
 
 print("Beginning training!")
 num <- trainControl(method = 'cv',
-                    number = 10,
+                    number = 1,
                     classProbs = TRUE,
                     verboseIter = FALSE,
                     summaryFunction = twoClassSummary,
@@ -92,20 +92,20 @@ print("Done training!")
 
 print("Predict train results!")
 trainRslt <- predict(fit, newdata=trainSet)
-trainConf <- confusionMatrix(trainRslt, trainSet$class)
+trainConf <- confusionMatrix(trainRslt, trainSet$class, positive="S")
 print(trainConf, mode = "everything", digits = 4)
 print("Done!")
 
 print("Predict test results!")
 testRslt  <- predict(fit, newdata=testSet)
-testConf  <- confusionMatrix(testRslt, testSet$class)
+testConf  <- confusionMatrix(testRslt, testSet$class, positive="S")
 print(testConf, mode = "everything", digits = 4)
 print("Done!")
 
 probabilities <- predict(fit, newdata=testSet, type='prob')
 
 out <- data.frame(SUBJECT=testSet$subject)
-out <- cbind(out, CLASS=probabilities$X1)
+out <- cbind(out, CLASS=probabilities$S)
 
 print("Writing training confusion matrix!")
 write.csv(as.matrix(trainConf), file=paste(outDir, 'TrainingConfMat.csv', sep=""))
@@ -121,7 +121,5 @@ print("Done!")
 
 write.csv(out, file=paste(outDir, "PackageOut.csv", sep=""), row.names=FALSE)
 
-#nnet <- neuralnet(trainFileData$class ~ trainNN$Fz + trainNN$FCz + trainNN$Cz + trainNN$FC3 + trainNN$FC4 + trainNN$C3 + trainNN$C4 + trainNN$CP3 + trainNN$CP4, trainNN, hidden=5, linear.output = T)
 stopCluster(cl)
-
 print("Done!")

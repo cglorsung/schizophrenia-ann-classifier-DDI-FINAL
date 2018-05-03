@@ -1,3 +1,4 @@
 .vscode/settings.json
 Utilities/First.R
 Utilities/PackageTest.R
+*.RLOG
