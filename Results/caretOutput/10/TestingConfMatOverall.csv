@@ -1,8 +1,8 @@
 "","V1"
-"Accuracy",0.662315672153635
-"Kappa",0.24549948696058
-"AccuracyLower",0.660795896335812
-"AccuracyUpper",0.66383292771853
-"AccuracyNull",0.604938271604938
+"Accuracy",0.670338282032304
+"Kappa",0.26928482962198
+"AccuracyLower",0.668648847785117
+"AccuracyUpper",0.672024409761231
+"AccuracyNull",0.6049390985174
 "AccuracyPValue",0
 "McnemarPValue",0

@@ -21,13 +21,17 @@ errFile <- file('error_log.RLOG', open='wt')
 sink(errFile, type='message')
 
 # Number of hidden layers?
-hiddenNum <- 100
+hiddenNum <- 50
 print(paste("Working with ", hiddenNum, " layers!"))
 
-# Output directory
-outDir <- paste('../Results/caretOutput/',hiddenNum,'/', sep="")
-dir.create(outDir, showWarnings=FALSE)
+# Decay value
+decayNum <- 1e-3
+print(paste("Working with ", decayNum, " decay!"))
 
+# Output directory
+outDir <- paste('../Results/caretOutput/',hiddenNum, decayNum, '/', sep="")
+dir.create(outDir, showWarnings=FALSE)
+print(outDir)
 # Make the parallel cluster
 print("Making cluster")
 cl <- makeCluster(detectCores())
@@ -52,7 +56,7 @@ trainData$class <- y
 
 trainData <- trainData[, names(trainData)]
 
-inputData <- createDataPartition(trainData$class, p = .6, list = FALSE, times = 1)
+inputData <- createDataPartition(trainData$class, p = .70, list = FALSE, times = 1)
 
 print(nrow(inputData))
 print(nrow(trainData[inputData,]))
@@ -77,9 +81,9 @@ num <- trainControl(method = 'cv',
 fit <- train(trainSet[, 3:11],
              trainSet$class,
              method = 'nnet',
-             MaxNWts = 1200,
+             MaxNWts = 5000,
              trControl = num,
-             tuneGrid = expand.grid(size = c(hiddenNum), decay=c(0.1)), linout = 0)
+             tuneGrid = expand.grid(size = c(50, 50, 50, 50, 50), decay=c(decayNum, decayNum, decayNum, decayNum, decayNum)), linout = 0)
 
 #fit <- train(class ~ Fz + FCz + Cz + FC3 + FC4 + C3 + C4 + CP3 + CP4,
  #            data = train,
@@ -92,20 +96,20 @@ print("Done training!")
 
 print("Predict train results!")
 trainRslt <- predict(fit, newdata=trainSet)
-trainConf <- confusionMatrix(trainRslt, trainSet$class)
+trainConf <- confusionMatrix(trainRslt, trainSet$class, positive = "S")
 print(trainConf, mode = "everything", digits = 4)
 print("Done!")
 
 print("Predict test results!")
 testRslt  <- predict(fit, newdata=testSet)
-testConf  <- confusionMatrix(testRslt, testSet$class)
+testConf  <- confusionMatrix(testRslt, testSet$class, positive = "S")
 print(testConf, mode = "everything", digits = 4)
 print("Done!")
 
 probabilities <- predict(fit, newdata=testSet, type='prob')
 
 out <- data.frame(SUBJECT=testSet$subject)
-out <- cbind(out, CLASS=probabilities$X1)
+out <- cbind(out, CLASS=probabilities$S)
 
 print("Writing training confusion matrix!")
 write.csv(as.matrix(trainConf), file=paste(outDir, 'TrainingConfMat.csv', sep=""))
