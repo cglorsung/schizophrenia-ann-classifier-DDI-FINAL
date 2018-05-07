@@ -1,0 +1,22 @@
+---PERFORMANCE---
+RECORDS : 368640
+RUNTIME : 17614.5780003s
+trainCORRECT : 0.549414%
+testCORRECT  : 0.333336%
+
+---NN INFO---
+NN ITERATIONS   : 10000
+NN HIDDEN LAYERS: 45
+
+---SYSINFO---
+SYSNAME : Linux
+RELEASE : 4.13.0-1013-gcp
+VERSION : #17-Ubuntu SMP Fri Apr 6 08:30:45 UTC 2018
+MACHINE : x86_64
+
+---ENVINFO---
+PLATFORM: x86_64-pc-linux-gnu
+OS      : linux-gnu
+VERSION : R version 3.4.4 (2018-03-15)
+V-TITLE : Someone to Lean On
+

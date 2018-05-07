@@ -22,7 +22,7 @@ sink(errFile, type='message')
 
 # Number of hidden layers?
 hiddenNum <- 50
-print(paste("Working with ", hiddenNum, " layers!"))
+print(paste("Working with ", hiddenNum, " nodes in first hidden layer!"))
 
 # Decay value
 decayNum <- 1e-3
@@ -83,7 +83,7 @@ fit <- train(trainSet[, 3:11],
              method = 'nnet',
              MaxNWts = 5000,
              trControl = num,
-             tuneGrid = expand.grid(size = c(50, 50, 50, 50, 50), decay=c(decayNum, decayNum, decayNum, decayNum, decayNum)), linout = 0)
+             tuneGrid = expand.grid(size = c(70, 60, 50, 40, 30, 20, 10), decay=c(decayNum, decayNum, decayNum, decayNum, decayNum, decayNum, decayNum)), linout = 0)
 
 #fit <- train(class ~ Fz + FCz + Cz + FC3 + FC4 + C3 + C4 + CP3 + CP4,
  #            data = train,
