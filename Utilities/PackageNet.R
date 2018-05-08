@@ -35,6 +35,7 @@ print(outDir)
 # Make the parallel cluster
 print("Making cluster")
 cl <- makeCluster(detectCores())
+print(cl)
 registerDoParallel(cl)
 print("Done making cluster!")
 
@@ -83,7 +84,7 @@ fit <- train(trainSet[, 3:11],
              method = 'nnet',
              MaxNWts = 5000,
              trControl = num,
-             tuneGrid = expand.grid(size = c(70, 60, 50, 40, 30, 20, 10), decay=c(decayNum, decayNum, decayNum, decayNum, decayNum, decayNum, decayNum)), linout = 0)
+             tuneGrid = expand.grid(size = c(40, 40, 40, 40, 40, 40, 40, 20, 10), decay=c(decayNum, decayNum, decayNum, decayNum, decayNum, decayNum, decayNum, decayNum, decayNum)), linout = 0)
 
 #fit <- train(class ~ Fz + FCz + Cz + FC3 + FC4 + C3 + C4 + CP3 + CP4,
  #            data = train,
@@ -114,6 +115,7 @@ out <- cbind(out, CLASS=probabilities$S)
 print("Writing training confusion matrix!")
 write.csv(as.matrix(trainConf), file=paste(outDir, 'TrainingConfMat.csv', sep=""))
 write.csv(as.matrix(trainConf, what = "classes"), file=paste(outDir, 'TrainingConfMatClasses.csv', sep=""))
+write.csv(as.matrix(trainConf, what = "classes"), file=paste(outDir, 'TrainingConfMatClasses.csv', sep=""))
 write.csv(as.matrix(trainConf, what = "overall"), file=paste(outDir, 'TrainingConfMatOverall.csv', sep=""))
 print("Done!")
 
@@ -128,4 +130,3 @@ write.csv(out, file=paste(outDir, "PackageOut.csv", sep=""), row.names=FALSE)
 #nnet <- neuralnet(trainFileData$class ~ trainNN$Fz + trainNN$FCz + trainNN$Cz + trainNN$FC3 + trainNN$FC4 + trainNN$C3 + trainNN$C4 + trainNN$CP3 + trainNN$CP4, trainNN, hidden=5, linear.output = T)
 stopCluster(cl)
 
-print("Done!")

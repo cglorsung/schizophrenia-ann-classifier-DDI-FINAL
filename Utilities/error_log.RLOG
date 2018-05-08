@@ -1,2 +1,3 @@
-
-Execution halted
+Warning message:
+In train.default(trainSet[, 3:11], trainSet$class, method = "nnet",  :
+  The metric "Accuracy" was not in the result set. ROC will be used instead.
