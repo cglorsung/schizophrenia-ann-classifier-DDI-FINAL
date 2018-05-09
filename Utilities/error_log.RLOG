@@ -1,3 +1,3 @@
 Warning message:
-In train.default(trainSet[, 3:11], trainSet$class, method = "nnet",  :
+In train.default(trainSet[, 3:11], trainSet$class, method = "mlpML",  :
   The metric "Accuracy" was not in the result set. ROC will be used instead.
