@@ -20,16 +20,19 @@ sink.reset <- function() {
 errFile <- file('error_log.RLOG', open='wt')
 sink(errFile, type='message')
 
+# Method?
+m <- "mlpML"
+
 # Number of hidden layers?
-hiddenNum <- 20
+hiddenNum <- 35
 print(paste("Working with ", hiddenNum, " nodes in first hidden layer!"))
 
 # Decay value
-decayNum <- 1e-3
+decayNum <- 1e-2
 print(paste("Working with ", decayNum, " decay!"))
 
 # Output directory
-outDir <- paste('../Results/caretOutput/',hiddenNum, decayNum, '/', sep="")
+outDir <- paste('../Results/caretOutput/',m, hiddenNum, decayNum, '/', sep="")
 dir.create(outDir, showWarnings=FALSE)
 print(outDir)
 # Make the parallel cluster
@@ -75,7 +78,7 @@ cat(sprintf("TRAIN NA?: %s\nTEST NA?: %s\n", trainNA, testNA))
 
 print("Beginning training!")
 
-mlpGrid = expand.grid(layer1 = 15, layer2 = 10, layer3 = 5)
+mlpGrid = expand.grid(layer1 = 35, layer2 = 20, layer3 = 10)
 
 num <- trainControl(method = 'cv',
                     number = 10,
