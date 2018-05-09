@@ -1,0 +1,22 @@
+---PERFORMANCE---
+RECORDS : 368640
+RUNTIME : 0.1900003s
+trainCORRECT : 0.535582%
+testCORRECT  : 0.707317%
+
+---NN INFO---
+NN ITERATIONS   : 1
+NN HIDDEN LAYERS: 1
+
+---SYSINFO---
+SYSNAME : Windows
+RELEASE : 10 x64
+VERSION : build 16299
+MACHINE : x86-64
+
+---ENVINFO---
+PLATFORM: x86_64-w64-mingw32
+OS      : mingw32
+VERSION : R version 3.4.4 (2018-03-15)
+V-TITLE : Someone to Lean On
+

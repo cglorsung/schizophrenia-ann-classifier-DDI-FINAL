@@ -36,15 +36,15 @@ if(length(args) == 2) {
 }
 
 # Time management
-if(!file.exists("../DataFiles/TestPatientList.csv") || recompute == TRUE || length(args) > 1) {
+if(!file.exists("DataFiles/TestPatientList.csv") || recompute == TRUE || length(args) > 1) {
     cat(sprintf("Calling LoadData.R\n"))
-    source("LoadData.R")
+    source("Utilities/LoadData.R")
     getTrainSet(numPatients=pats)
     getTestSet()
 }
 
 # Read data file
-fileDir  <- "../DataFiles/"
+fileDir  <- "DataFiles/"
 fileName <- "SampleData"
 cat(sprintf("Reading %s\n", fileName))
 fileData <- read.csv(paste(fileDir, fileName, ".csv", sep=""), header<-TRUE)
@@ -52,19 +52,19 @@ cat(sprintf("Done reading %s\n", fileName))
 
 # Read test file
 cat(sprintf("Reading TestData\n"))
-testData <- read.csv("../DataFiles/TestData.csv", header<-TRUE)
+testData <- read.csv("DataFiles/TestData.csv", header<-TRUE)
 cat(sprintf("Done reading TestData\n"))
 
 # How many iterations?
-global.iter = 1e4
+global.iter = 1e0
 cat(sprintf("Training with %d iterations\n", global.iter))
 
 # How many hidden layers?
-global.layer = 45
+global.layer = 1
 cat(sprintf("Using %d hidden layers\n", global.layer))
 
 # File output options
-outDir  <- paste("../Results/", fileName, "/", "I", toString(global.iter), ".L", toString(global.layer), "/", sep="")
+outDir  <- paste("Results/", fileName, "/", "I", toString(global.iter), ".L", toString(global.layer), "/", sep="")
 dir.create(outDir, showWarnings=FALSE)
 resFile <- paste(outDir, fileName, toString(global.iter), "Results.csv", sep="")
 matFile <- paste(outDir, fileName, toString(global.iter), "CMatrix.csv", sep="")
